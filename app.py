@@ -3,6 +3,8 @@ from flask_restful import Api
 from flask_jwt import JWT
 
 from security import authenticate, identity
+from resources.user import UserRegister
+from resources.stock import Stock, StockList 
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data.db'
@@ -17,6 +19,9 @@ def create_tables():
 
 jwt = JWT(app, authenticate, identity) # creates a new endpoint /auth; identity will be used for each request from client
 
+api.add_resource(Stock, '/stock')
+api.add_resource(StockList, '/stocks')
+api.add_resource(UserRegister, '/register')
 
 if __name__ == '__main__':
 	from db import db
