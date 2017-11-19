@@ -75,5 +75,3 @@ class StockModel(db.Model):
     stock.date = updated_info['date']
     
     db.session.commit()
-
-

@@ -11,7 +11,7 @@ class Stock(Resource):
 		help="Symbol field cannot be left blank!"
 	)
 
-	@jwt_required()
+	#@jwt_required()
 	def post(self):
 		data = Stock.parser.parse_args()
 		if StockModel.find_by_name(data.symbol):
@@ -28,7 +28,7 @@ class Stock(Resource):
 
 		return stock.json()
 
-	@jwt_required()
+	#@jwt_required()
 	def delete(self):
 		data = Stock.parser.parse_args()
 		stock = StockModel.find_by_name(data.symbol)
@@ -48,5 +48,3 @@ class StockList(Resource):
 			StockModel.update_info(stock.symbol)
 
 		return {'stocks': [stock.json() for stock in StockModel.query.all()]}
-
-
