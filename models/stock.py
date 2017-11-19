@@ -1,4 +1,5 @@
 from db import db
+from stock_crawler import get_historical_data
 
 class StockModel(db.Model):
   __tablename__ = 'stocks'
@@ -11,6 +12,8 @@ class StockModel(db.Model):
   high = db.Column(db.Float(precision=2))
   open = db.Column(db.Float(precision=2))
   date = db.Column(db.String(80))
+
+  # OTHER INFORMATION I'D LIKE TO ADD
   # name = db.Column(db.String(80))
   # price = db.Column(db.Float(precision=2))
   # exchange = db.Column(db.String(80))
@@ -24,12 +27,18 @@ class StockModel(db.Model):
 
   def __init__(self, stock_data):
     self.symbol = stock_data['symbol']
-    self.main_page = stock_data['main_page']
-    self.close = stock_data['close']
-    self.low = stock_data['low']
-    self.high = stock_data['high']
-    self.open = stock_data['open']
-    self.date = stock_data['date']
+    self.main_page = "https://finance.yahoo.com/quote/" + stock_data['symbol'] + "?p="+ stock_data['symbol']
+    self.close = None
+    self.low = None
+    self.high = None
+    self.open = None
+    self.date = None
+    # self.main_page = stock_data['main_page']
+    # self.close = stock_data['close']
+    # self.low = stock_data['low']
+    # self.high = stock_data['high']
+    # self.open = stock_data['open']
+    # self.date = stock_data['date']
 
   def json(self):
     return {
@@ -54,5 +63,17 @@ class StockModel(db.Model):
   	db.session.delete(self)
   	db.session.commit()
 
+  @classmethod
+  def update_info(cls, symbol):
+    updated_info = get_historical_data(symbol, 1)[0]
+    stock = cls.query.filter_by(symbol=symbol).first()
+
+    stock.close = updated_info['close']
+    stock.low = updated_info['low']
+    stock.high = updated_info['high']
+    stock.open = updated_info['open']
+    stock.date = updated_info['date']
+    
+    db.session.commit()
 
 

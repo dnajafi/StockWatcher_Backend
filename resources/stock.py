@@ -15,10 +15,11 @@ class Stock(Resource):
 	def post(self):
 		data = Stock.parser.parse_args()
 		if StockModel.find_by_name(data.symbol):
-			return {"message": "A stock with the symbol '{}' already exists".format(data.symbol)}, 400
+			return {"message": "A stock with the symbol {} already exists".format(data.symbol)}, 400
 
-		stock_data = get_historical_data(data.symbol, 1)[0]
-		stock = StockModel(stock_data)
+		#stock_data = get_historical_data(data.symbol, 1)[0]
+		# stock = StockModel(stock_data)
+		stock = StockModel({"symbol": data.symbol})
 
 		try:
 			stock.save_to_db()
@@ -27,8 +28,25 @@ class Stock(Resource):
 
 		return stock.json()
 
+	@jwt_required()
+	def delete(self):
+		data = Stock.parser.parse_args()
+		stock = StockModel.find_by_name(data.symbol)
+
+		if stock:
+			stock.delete_from_db()
+
+		return {"message": "The stock {} has been deleted.".format(data.symbol)}
+
+
 
 class StockList(Resource):
-	# @jwt_required()
 	def get(self):
+		# update stock info
+		stocks = StockModel.query.all()
+		for stock in stocks:
+			StockModel.update_info(stock.symbol)
+
 		return {'stocks': [stock.json() for stock in StockModel.query.all()]}
+
+
